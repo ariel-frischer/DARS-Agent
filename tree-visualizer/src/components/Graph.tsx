@@ -14,8 +14,6 @@ import {
   useEdgesState,
   ReactFlowInstance,
 } from "@xyflow/react";
-// import DarkModeIcon from "@mui/icons-material/DarkMode";
-// import LightModeIcon from "@mui/icons-material/LightMode";
 import ClearIcon from "@mui/icons-material/Clear";
 import SearchIcon from "@mui/icons-material/Search";
 import { GoToTopPanel } from "./actionItems/GoToTopPanel";
@@ -54,10 +52,7 @@ const nodeColor = (node: Node) => {
   }
 };
 
-const Graph = ({}: {
-  theme: Theme;
-  toggleTheme: () => void;
-}) => {
+const Graph = () => {
   const { data, graphInfo } = useCombinationData() as StringAnyMap;
   const onInit = (reactFlowInstance: ReactFlowInstance) => {
     reactFlowInstance.setViewport({ x: 800, y: 500, zoom: 0.75 }); // Adjust padding for better fit
@@ -142,12 +137,6 @@ const Graph = ({}: {
         fitView
       >
         <ControlsStyled position="top-center" orientation="horizontal">
-{/*           <button
-            onClick={toggleTheme}
-            className="bg-sky-900 dark:bg-mint-500 !important"
-          >
-            {theme == Theme.DARK ? <LightModeIcon /> : <DarkModeIcon />}
-          </button> */}
           <Divider orientation="vertical" flexItem />
           <input
             className="px-4"
