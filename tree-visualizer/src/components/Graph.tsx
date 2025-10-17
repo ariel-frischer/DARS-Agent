@@ -14,8 +14,6 @@ import {
   useEdgesState,
   ReactFlowInstance,
 } from "@xyflow/react";
-// import DarkModeIcon from "@mui/icons-material/DarkMode";
-// import LightModeIcon from "@mui/icons-material/LightMode";
 import ClearIcon from "@mui/icons-material/Clear";
 import SearchIcon from "@mui/icons-material/Search";
 import { GoToTopPanel } from "./actionItems/GoToTopPanel";
@@ -41,7 +39,6 @@ import "@xyflow/react/dist/style.css";
 import { lightTheme, darkTheme } from "@/components/styles";
 import { StringAnyMap } from "./types";
 import { createNodesAndEdges } from "./utils/createNodesAndEdges";
-import { Divider } from "@mui/material";
 
 const nodeColor = (node: Node) => {
   switch (node.type) {
@@ -54,10 +51,7 @@ const nodeColor = (node: Node) => {
   }
 };
 
-const Graph = ({}: {
-  theme: Theme;
-  toggleTheme: () => void;
-}) => {
+const Graph = () => {
   const { data, graphInfo } = useCombinationData() as StringAnyMap;
   const onInit = (reactFlowInstance: ReactFlowInstance) => {
     reactFlowInstance.setViewport({ x: 800, y: 500, zoom: 0.75 }); // Adjust padding for better fit
@@ -66,7 +60,7 @@ const Graph = ({}: {
     data,
   });
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges,] = useEdgesState(initialEdges);
+  const [edges, setEdges] = useEdgesState(initialEdges);
   
   // 🔄 Update nodes & edges when new data comes in
   useEffect(() => {
@@ -142,13 +136,6 @@ const Graph = ({}: {
         fitView
       >
         <ControlsStyled position="top-center" orientation="horizontal">
-{/*           <button
-            onClick={toggleTheme}
-            className="bg-sky-900 dark:bg-mint-500 !important"
-          >
-            {theme == Theme.DARK ? <LightModeIcon /> : <DarkModeIcon />}
-          </button> */}
-          <Divider orientation="vertical" flexItem />
           <input
             className="px-4"
             value={searchQuery}
@@ -183,15 +170,12 @@ const Graph = ({}: {
 };
 
 const GraphContainer = ({ data }: { data: StringAnyMap }) => {
-  const [theme, setTheme] = useState<Theme>(Theme.LIGHT);
+  const [theme] = useState<Theme>(Theme.LIGHT);
 
-  const toggleTheme = useCallback(() => {
-    setTheme((th) => (th === Theme.LIGHT ? Theme.DARK : Theme.LIGHT));
-  }, []);
   return (
     <ThemeProvider theme={theme === Theme.LIGHT ? lightTheme : darkTheme}>
       <EntityProvider data={data}>
-        <Graph theme={theme} toggleTheme={toggleTheme} />
+        <Graph />
       </EntityProvider>
     </ThemeProvider>
   );
