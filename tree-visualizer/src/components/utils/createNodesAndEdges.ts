@@ -71,9 +71,15 @@ export const createNodesAndEdges = ({
     .filter((node) => node?.traversalSequence)
     .sort((a, b) => a.traversalSequence - b.traversalSequence);
 
+  // Optimization: Build index map for O(1) lookups instead of O(n) findIndex in recursion
+  const nodeIdToIndex = new Map<string, number>();
+  sortedNodeIds.forEach((node, index) => {
+    nodeIdToIndex.set(node.id, index);
+  });
+
   function getNextStepNode(nodeId: string) {
-    const presentId = sortedNodeIds.findIndex((e) => e.id == nodeId);
-    if (presentId != -1 && presentId != sortedNodeIds.length) {
+    const presentId = nodeIdToIndex.get(nodeId);
+    if (presentId !== undefined && presentId !== sortedNodeIds.length - 1) {
       return sortedNodeIds[presentId + 1];
     }
     return null;

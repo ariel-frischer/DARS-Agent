@@ -1,4 +1,5 @@
 import networkx as nx
+from collections import deque
 
 class RepoSearcher:
     def __init__(self, graph):
@@ -18,28 +19,35 @@ class RepoSearcher:
 
     def dfs(self, query, depth):
         # perform depth-first search on networkx graph
-        visited = []
+        # Optimized: Use set for O(1) membership test instead of O(n) list search
+        visited = set()
+        result = []
         stack = [(query, 0)]
         while stack:
             node, level = stack.pop()
             if node not in visited:
-                visited.append(node)
+                visited.add(node)
+                result.append(node)
                 if level < depth:
                     stack.extend(
                         [(n, level + 1) for n in self.one_hop_neighbors(node)]
                     )
-        return visited
+        return result
     
     def bfs(self, query, depth):
         # perform breadth-first search on networkx graph
-        visited = []
-        queue = [(query, 0)]
+        # Optimized: Use deque for O(1) popleft instead of O(n) pop(0)
+        # Use set for O(1) membership test instead of O(n) list search
+        visited = set()
+        queue = deque([(query, 0)])
+        result = []
         while queue:
-            node, level = queue.pop(0)
+            node, level = queue.popleft()
             if node not in visited:
-                visited.append(node)
+                visited.add(node)
+                result.append(node)
                 if level < depth:
                     queue.extend(
                         [(n, level + 1) for n in self.one_hop_neighbors(node)]
                     )
-        return visited
+        return result
