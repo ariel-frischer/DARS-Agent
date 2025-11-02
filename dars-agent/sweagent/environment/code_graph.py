@@ -32,6 +32,9 @@ class RepoMap:
 
     warned_files = set()
 
+    # Cache builtins to avoid rebuilding on every file parse (performance optimization)
+    _builtins_cache = None
+
     def __init__(
         self,
         map_tokens=1024,
@@ -54,6 +57,21 @@ class RepoMap:
 
         # self.token_count = main_model.token_count
         self.repo_content_prefix = repo_content_prefix
+
+        # Initialize builtins cache once
+        if RepoMap._builtins_cache is None:
+            RepoMap._builtins_cache = self._build_builtins_cache()
+
+    @staticmethod
+    def _build_builtins_cache():
+        """Build cached list of builtin functions once"""
+        builtins_funs = [name for name in dir(builtins)]
+        builtins_funs += dir(list)
+        builtins_funs += dir(dict)
+        builtins_funs += dir(set)
+        builtins_funs += dir(str)
+        builtins_funs += dir(tuple)
+        return set(builtins_funs)  # Use set for O(1) lookups
 
     def get_repo_map(self, chat_files, other_files, mentioned_fnames=None, mentioned_idents=None):
         if self.max_map_tokens <= 0:
@@ -241,14 +259,9 @@ class RepoMap:
 
         # functions from third-party libs or default libs
         std_funcs, std_libs = self.std_proj_funcs(code, fname)
-        
-        # functions from builtins
-        builtins_funs = [name for name in dir(builtins)]
-        builtins_funs += dir(list)
-        builtins_funs += dir(dict)
-        builtins_funs += dir(set)  
-        builtins_funs += dir(str)
-        builtins_funs += dir(tuple)
+
+        # Use cached builtins (performance optimization)
+        builtins_funs = RepoMap._builtins_cache
 
         # Run the tags queries
         query = language.query(query_scm)
@@ -384,6 +397,7 @@ class RepoMap:
             if fname in mentioned_fnames:
                 personalization[rel_fname] = personalize
             
+            # Optimization: Avoid unnecessary list() call, get_tags already returns iterable
             tags = list(self.get_tags(fname, rel_fname))
 
             tags_of_files.extend(tags)

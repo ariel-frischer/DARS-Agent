@@ -16,21 +16,26 @@ const extractPatch = (content: string) => {
 };
 
 const getInfo = (finalData: StringAnyMap) => {
-  const patchesCount = Object.values(finalData).filter(
-    (entity) => entity.role == "user" && entity.isTerminal
-  ).length;
+  // Optimization: Single pass instead of 4 separate O(n) passes
+  let patchesCount = 0;
+  let acceptedPatches = 0;
+  let iterations = 0;
+  let pathCount = 1;
 
-  const acceptedPatches = Object.values(finalData).filter(
-    (entity) => entity.isAcceptedTerminal
-  ).length;
-
-  const iterations = Object.values(finalData).filter(
-    (entity) => entity.role == "assistant"
-  ).length;
-
-  const pathCount =
-    Object.values(finalData).filter((entity) => entity.childrenIds.length > 1)
-      .length + 1;
+  for (const entity of Object.values(finalData)) {
+    if (entity.role === "user" && entity.isTerminal) {
+      patchesCount++;
+    }
+    if (entity.isAcceptedTerminal) {
+      acceptedPatches++;
+    }
+    if (entity.role === "assistant") {
+      iterations++;
+    }
+    if (entity.childrenIds && entity.childrenIds.length > 1) {
+      pathCount++;
+    }
+  }
 
   return {
     patchesCount,

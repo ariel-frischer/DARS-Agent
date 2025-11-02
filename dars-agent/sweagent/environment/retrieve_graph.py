@@ -97,18 +97,21 @@ class CodeGraphRetriever:
                     all_related.extend(item.split('\t'))
                 else:
                     all_related.append(item)
+
+            # Optimization: Use set for deduplication and dict lookup (O(1)) instead of repeated list operations
+            unique_items = set(all_related)
+
             # Filter and convert to FunctionInfo objects
             returned_files = []
-            for item in all_related:
-                if item not in self.tags2names:
+            for item in unique_items:
+                tag_info = self.tags2names.get(item)
+                if not tag_info:
                     continue
-                    
-                tag_info = self.tags2names[item]
-                
+
                 # Skip test files
                 if 'test' in tag_info['fname'].lower():
                     continue
-                
+
                 func_info = FunctionInfo(
                     fname=tag_info['fname'],
                     line=tag_info['line'],
@@ -118,7 +121,7 @@ class CodeGraphRetriever:
                     info=tag_info['info']
                 )
                 returned_files.append(func_info)
-            
+
             return returned_files
 
         except Exception as e:
